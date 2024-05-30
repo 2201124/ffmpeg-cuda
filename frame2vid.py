@@ -1,13 +1,11 @@
 import os
+import shutil
 import subprocess
 
-def main():
-    # Get the folder location from the user
-    folder_path = input("Please enter the folder location containing the frames: ").strip('"')
-
+def encode_video(folder_path):
     # Validate if the folder exists
     if not os.path.isdir(folder_path):
-        print("The provided folder path does not exist.")
+        print(f"The provided folder path does not exist: {folder_path}")
         return
 
     # Extract the folder name to use as the video name
@@ -38,8 +36,23 @@ def main():
     try:
         subprocess.run(ffmpeg_command, check=True)
         print(f"Video created successfully: {output_video}")
+
+        # Delete the frames folder after successful encoding
+        shutil.rmtree(folder_path)
+        print(f"Deleted frames folder: {folder_path}")
+
     except subprocess.CalledProcessError as e:
-        print(f"An error occurred while running ffmpeg: {e}")
+        print(f"An error occurred while running ffmpeg for {folder_path}: {e}")
+
+def main():
+    # Get the folder locations from the user
+    folder_paths_input = input("Please enter the folder locations containing the frames (separated by commas): ").strip('"')
+    folder_paths = [fp.strip().strip('"') for fp in folder_paths_input.split('","')]
+
+    # Process each folder
+    for folder_path in folder_paths:
+        print(f"Processing folder: {folder_path}")
+        encode_video(folder_path)
 
 if __name__ == "__main__":
     main()
